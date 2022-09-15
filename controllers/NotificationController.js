@@ -45,6 +45,27 @@ exports.getAllNotifications = (req,res) =>{
         })
         )}
 
+        exports.searchByType= (req,res) =>{
+            const type = req.query.type;
+            NotificationModel.find({type: type},(function(err,result){
+                try{
+                    res.json({
+                        message: "notifications with This Type are",
+                        data: result,
+                        statusCode:200
+                    })
+                }
+                catch(err){
+                    res.json({
+                        message: "Error in fetching " ,
+                        Error: err.message,
+                        error: err,
+                        statusCode:400
+                    })
+                }
+            })
+            )}
+
     exports.deleteNotification = (req,res)=>{
         const notificationId= req.params.notificationId
 
@@ -68,6 +89,7 @@ exports.getAllNotifications = (req,res) =>{
         const name = req.body.name
         const image = req.body.image;
         const date = req.body.date
+        const type = req.body.type
         
         
         const newNotification = new NotificationModel({
@@ -75,7 +97,8 @@ exports.getAllNotifications = (req,res) =>{
             body:body,
             name:name,
             image:image,
-            date:date
+            date:date,
+            type:type,
           });
 
           newNotification.save(function (err, result) {
@@ -199,11 +222,12 @@ exports.getAllNotifications = (req,res) =>{
 
 exports.updateNotification= (req,res)=>{
 
-    const notificationId = req.body.notificationId;
-    const body = req.body.body
+        const notificationId = req.body.notificationId;
+        const body = req.body.body
         const name = req.body.name
         const image = req.body.image;
         const date = req.body.date
+        const type=req.body.type;
 
     if(notificationId !==null && typeof notificationId !=="undefined"){
         
@@ -212,7 +236,8 @@ exports.updateNotification= (req,res)=>{
                 body:body,
                 name:name,
                  image:image,
-                date:date
+                date:date,
+                type: type,
             },
             {
                 new: true,

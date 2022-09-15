@@ -6,73 +6,57 @@ const iStockSignalModel = require("../models/iStockSignalModel")
 
 exports.createIStockSignal = (req,res)=>{
     const companyId = req.body.companyId
-    const type = req.body.type
     const buyTarget = req.body.buyTarget
     const stopLoss= req.body.stopLoss
     const sellTarget= req.body.sellTarget
-    const maxGain = req.body.maxGain
-    const notes = req.body.notes
+    const signalNote = req.body.signalNote
+    const closingNote = req.body.closingNote
     const dateSignalSent = req.body.dateSignalSent
+    const actualGain = req.body.actualGain
+    const type= req.body.type
 
 
-    if(type==="swing" || type==="longTerm" || type==="closed")
-    {
-        if(companyId && type){
-            iStockSignalModel.findOneAndUpdate({companyId:companyId , type:type},
-                {
-                companyId : companyId,
-                type: type,
-                buyTarget: buyTarget,
-                stopLoss: stopLoss,
-                sellTarget: sellTarget,
-                maxGain: maxGain,
-                notes: notes,
-                dateSignalSent: dateSignalSent
-                },
-                {
-                    new: true,
-                    upsert: true,
-                }, function(err,result){
-                     try{
-                        if (result){
-                            res.json({
-                                message:"successfully created i stock signal",
-                                updatedResult: result,
-                                statusCode:201
-                            })
-                        }
-                        else{
-                            res.json({
-                                message:"No any IStockSignal created,",
-                                statusCode:404
-                            })
-                        }
-                     }
-                     catch(err){
-                        res.json({
-                            message:"Failed to creating iStockSignal",
-                            error:err.message,
-                            statusCode:500
-                        })
-                     }
-        
+    let maxGain= calculateMax_gain(sellTarget,buyTarget)
+
+    const stockSignal = new iStockSignalModel({
+        _id: mongoose.Types.ObjectId(),
+        companyId:companyId,
+        buyTarget:buyTarget,
+        stopLoss:stopLoss,
+        sellTarget:sellTarget,
+        signalNote: signalNote,
+        closingNote: closingNote,
+        dateSignalSent: dateSignalSent,
+        maxGain: maxGain,
+        actualGain: actualGain,
+        type:type
+    }) 
+    
+    stockSignal.save((err,result)=>{
+        try{
+            console.log(result)
+            if(result){
+                res.json({
+                    message:"successfully created stockSignal",
+                    statusCode:200,
+                    result:result
                 })
+            }
+            else{
+                res.json({
+                    message:"failed to create stockSignal",
+                    statusCode:400,
+                    result:result
+                })
+            }
         }
-        else{
+        catch(err){
             res.json({
-                message:"companyId or type may be null or undefined",
-                statusCode:404
+                message:"Error occurred in creating stockSignal",
+                error:err.message,
             })
         }
-    }
-    else{
-        res.json({
-            message:'type must be one of these "swing" , "longTerm" , "closed"'
-        })
-    }
-    
-    
-    
+    })
 }
 
 exports.getAllIStockSignals=(req,res)=>{
@@ -108,6 +92,32 @@ exports.getIStockSignalById =(req,res)=>{
             if(result){
                 res.json({
                     message:"successfully fetched",
+                    result:result,
+                    statusCode:200
+                })
+            }else{
+                res.json({
+                    message:"failed to fetch",
+                    statusCode:404
+                })
+            }
+        }
+        catch(err){
+            res.json({
+                message:"Error occurred in fetching results",
+                statusCode:500
+            })
+        }
+    })
+}
+
+exports.getStockSignalByStatus =(req,res)=>{
+    const status = req.query.status
+    iStockSignalModel.find({status:status}).populate("companyId").exec( function(err,result){
+        try{
+            if(result){
+                res.json({
+                    message:"successfully fetched with this status ",
                     result:result,
                     statusCode:200
                 })
@@ -182,66 +192,188 @@ exports.deleteIStockSignal= (req,res)=>{
     })
 }
 
-exports.updateIStockSignal = (req,res)=>{
+exports.updateIStockSignal =async (req,res)=>{
 
     const iStockSignalId= req.body.iStockSignalId;
     const companyId = req.body.companyId
-    const type = req.body.type
     const buyTarget = req.body.buyTarget
     const stopLoss= req.body.stopLoss
     const sellTarget= req.body.sellTarget
-    const maxGain = req.body.maxGain
-    const notes = req.body.notes
+    const signalNote = req.body.signalNote
+    const closingNote = req.body.closingNote
     const dateSignalSent = req.body.dateSignalSent
+    const actualGain = req.body.actualGain
+    const type= req.body.type
 
-    if(iStockSignalId){
-            
-    iStockSignalModel.findOneAndUpdate({_id: iStockSignalId},
-        {
-        companyId : companyId,
-        type: type,
-        buyTarget: buyTarget,
-        stopLoss: stopLoss,
-        sellTarget: sellTarget,
-        maxGain: maxGain,
-        notes: notes,
-        dateSignalSent: dateSignalSent
-        },
-        {
-            new: true,
-        }, function(err,result){
-             try{
-                if (result){
-                    res.json({
-                        message:"successfully updated",
-                        updatedResult: result,
-                        statusCode:200
-                    })
-                }
-                else{
-                    res.json({
-                        message:"No any IStockSignal Updated , IStockSignal with this Id may not exist",
-                        statusCode:404
-                    })
-                }
-             }
-             catch(err){
-                res.json({
-                    message:"Failed to update iStockSignal",
-                    error:err.message,
-                    statusCode:500
+    
+
+
+
+    try{
+        const result= await iStockSignalModel.findOne({_id: iStockSignalId})
+        if(!result){
+            res.json({
+                message:"result with this id may not exist",
+                statusCode: 404,
+            })
+        }
+        else{
+            var maxGain;
+            if(buyTarget && !sellTarget){
+                console.log(buyTarget +" "+ sellTarget)
+                maxGain= calculateMax_gain(result.sellTarget,buyTarget)
+            }
+            else if(sellTarget && !buyTarget){
+                console.log(buyTarget +" "+ sellTarget)
+                maxGain= calculateMax_gain(sellTarget,result.buyTarget)
+            }
+            else{
+                console.log(buyTarget +" "+ sellTarget)
+                maxGain= calculateMax_gain(sellTarget,buyTarget)
+            }
+        
+            if(iStockSignalId){
+                    
+            iStockSignalModel.findOneAndUpdate({_id: iStockSignalId},
+                {
+                    companyId:companyId,
+                    buyTarget:buyTarget,
+                    stopLoss:stopLoss,
+                    sellTarget:sellTarget,
+                    signalNote: signalNote,
+                    closingNote: closingNote,
+                    dateSignalSent: dateSignalSent,
+                    maxGain: maxGain,
+                    actualGain: actualGain,
+                    type: type
+        
+                },
+                {
+                    new: true,
+                }, function(err,result){
+                     try{
+                        if (result){
+                            res.json({
+                                message:"successfully updated",
+                                updatedResult: result,
+                                statusCode:200
+                            })
+                        }
+                        else{
+                            res.json({
+                                message:"No any IStockSignal Updated , IStockSignal with this Id may not exist",
+                                statusCode:404
+                            })
+                        }
+                     }
+                     catch(err){
+                        res.json({
+                            message:"Failed to update iStockSignal",
+                            error:err.message,
+                            statusCode:500
+                        })
+                     }
+        
                 })
-             }
+            }   
+            else{
+                res.json({
+                    message:"iStockSignalId may be null or undefined",
+                    statusCode:404
+                })
+            }
+        }
 
-        })
-    }   
-    else{
+    }
+    catch(err){
         res.json({
-            message:"iStockSignalId may be null or undefined",
-            statusCode:404
+            message:"Error occurred",
+            Error: err,
+            statusCode: 404,
         })
     }
 
+}
+exports.changeStatus = (req,res)=>{
+    const status = req.query.status;
+    const iStockSignalId = req.body.iStockSignalId;
+
+    if(status === "open" || status === "closed"){
+        iStockSignalModel.findOneAndUpdate({_id:iStockSignalId}
+            ,
+            {
+                status: status
+            },
+            {
+                new: true
+            } , function(err,result){
+                try{
+                    if(result){
+                        res.json({
+                            message:"status changed to " + status ,
+                            result: result,
+                            statusCode:200
+                        })
+                    }
+                    else{
+                        res.json("Could not change status")
+                    }
+                }
+                catch(e){
+                    res.json({
+                        message:"error occurred while updating status",
+                        Error: e,
+                        errorMessage: e.message
+                    })
+                }
+            })
+    }
     
+}
+
+exports.getAchievedTargetStockSignal = async (req,res)=>{
+    
+    const result= await iStockSignalModel.find( {$expr: {$eq: ["$actualGain", "$maxGain"]}})  
+
+    try{
+        if(result.length>0){
+            res.json({
+                message:"Those iStock signals where actualGain and maxGain are equal",
+                result: result,
+                statusCode: 200,
+            })
+        }
+        else{
+            res.json({
+                message:"There is no signal where actualGain and maxGain are equal",
+                result: result,
+                statusCode: 200,
+            })
+        }
+    }
+    catch(err){
+        res.json({
+            message:"Error occurred while fetching",
+            Error:err,
+            errorMessage: err.message,
+            statusCode: 404
+        })
+    }
+
+
+}
+
+
+function  calculateMax_gain(sellTarget,buyTarget){
+    console.log(sellTarget)
+    let maxGain=0;
+    sellTarget=sellTarget;
+    buyTarget=buyTarget;
+    let div = (sellTarget/buyTarget)-1;
+    console.log(div)
+
+    maxGain= div*100
+    console.log("this is max gain"+ maxGain)
+    return maxGain;
 
 }

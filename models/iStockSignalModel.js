@@ -1,4 +1,4 @@
-const { date } = require("joi");
+
 const mongoose = require("mongoose");
 
 const iStockSignalSchema = new mongoose.Schema({
@@ -9,7 +9,7 @@ _id:mongoose.Schema.Types.ObjectId,
  },
   type: {
     type:String,
-    enum:["swing" , "longTerm" , "closed"]
+    enum:["swing" , "longTerm"]
   },
   buyTarget: {
     type:Number
@@ -17,14 +17,28 @@ _id:mongoose.Schema.Types.ObjectId,
   stopLoss:{
     type:Number
   }, 
+
+  actualGain:{
+    type:Number
+  },
+
   sellTarget:Number,
-  maxGain : String,
-  notes:String,
+  
+  maxGain : Number,
+
+  signalNote:String,
+
+  closingNote:String,
 
   dateSignalSent:{
     type:Date,
     default:Date.now()
     
+  },
+  status:{
+    type:String,
+    enum:["open" , "closed"],
+    default:"open"
   }
 } 
 );

@@ -43,6 +43,7 @@ router.post("/register",  async (req, res) => {
         _id:savedAdmin._id,
         email:savedAdmin.email,
         password:savedAdmin.password,
+        statusCode:201
 
 
       })
@@ -72,6 +73,7 @@ router.post("/login",async (req, res) => {
       _id:admin._id,
       email:admin.email,
       password:admin.password,
+      statusCode:200
 
     })
   });

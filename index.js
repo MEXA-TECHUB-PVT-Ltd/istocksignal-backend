@@ -9,7 +9,9 @@ app.use(bodyParser.json())
 require('dotenv').config()
 
 const cors = require('cors')
-app.use(cors())
+app.use(cors({
+  methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']
+}));
 
 
 //connect to db
@@ -36,9 +38,10 @@ app.use("/api/optionSignal" , require("./routes/optionSignalRoute"))
 app.use("/api/cryptoSignal" , require("./routes/cryptoSignalRoute"))
 app.use("/api/notification" , require("./routes/NotificationRoute"))
 app.use("/api/subscription" , require("./routes/subscriptionRoute"))
+app.use("/api/guide" , require("./routes/guideRoute"))
 
 
-app.get("/user/logout",(req,res)=>
+app.get("/api/user/logout",(req,res)=>
 {
   res.json("Delete jwt token you stored in your cookie/session/async etc")
 })

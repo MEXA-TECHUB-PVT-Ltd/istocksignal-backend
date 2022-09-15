@@ -50,7 +50,8 @@ router.post("/register",  async (req, res) => {
     
     res.json({
       result:savedUser,
-      token:token
+      token:token,
+      statusCode:200
     })
   } catch (err) {
     res.status(400).send(err);
@@ -114,14 +115,16 @@ router.post("/login",async (req, res) => {
 
   res.json({
     message:"Logged in successfully",
-    token: token,
+    data:{token: token,
     _id:user._id,
     email:user.email,
     password:user.password,
     dateOfBirth:user.dateOfBirth,
     userName:user.userName,
     gender:user.gender,
-    signupType:user.signupType,
+    signupType:user.signupType
+  },
+  statusCode:200
   })
 });
 

@@ -9,6 +9,9 @@ router.get("/getIStockSignalById/:iStockSignalId" , controller.getIStockSignalBy
 router.get("/getIStockSignalByType" , controller.getIStockSignalByType)
 router.delete("/deleteIStockSignal/:iStockSignalId",controller.deleteIStockSignal)
 router.put("/updateIStockSignal" ,controller.updateIStockSignal)
+router.get("/getTargetAchievedStockSignals" ,controller.getAchievedTargetStockSignal)
+router.put("/changeSignalStatus" ,controller.changeStatus)
+router.get("/getIStockSignalByStatus" ,controller.getStockSignalByStatus)
 
 module.exports = router
 

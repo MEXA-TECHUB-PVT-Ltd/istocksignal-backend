@@ -18,14 +18,28 @@ _id:mongoose.Schema.Types.ObjectId,
   stopLoss:{
     type:Number
   }, 
+
+  actualGain:{
+    type:Number
+  },
+
   sellTarget:Number,
-  maxGain : String,
-  notes:String,
+  
+  maxGain : Number,
+
+  signalNote:String,
+
+  closingNote:String,
 
   dateSignalSent:{
     type:Date,
     default:Date.now()
     
+  },
+  status:{
+    type:String,
+    enum:["open" , "closed"],
+    default:"open"
   }
 } 
 );
