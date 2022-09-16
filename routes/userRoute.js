@@ -15,7 +15,7 @@ router.delete("/deleteUser/:userId", controller.deleteUser);
 router.put("/updateUserPassword", controller.updatePassword);
 router.put("/changeUserBlockStatus", controller.blockStatusChange);
 router.put("/updateUserProfile", controller.updateUserProfile);
-
+router.put("/deleteOrRestoreUser", controller.deleteTemporaryAndRestored);
 
 
 router.post("/register",  async (req, res) => {
@@ -62,7 +62,7 @@ router.post("/login",async (req, res) => {
   const { error } = loginSchema.validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   
-  const user = await userModel.findOne({ email: req.body.email });
+  const user = await userModel.findOne({ email: req.body.email , isDeleted:false});
  
 
   if (!user) return res.status(400).send("Email or password is wrong");

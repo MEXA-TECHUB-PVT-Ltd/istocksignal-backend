@@ -61,7 +61,7 @@ exports.createIStockSignal = (req,res)=>{
 
 exports.getAllIStockSignals=(req,res)=>{
     
-    iStockSignalModel.find({}).populate("companyId").exec(function(err,result){
+    iStockSignalModel.find({isDeleted:false}).populate("companyId").exec(function(err,result){
         try{
             console.log(result)
             if(result){
@@ -87,7 +87,7 @@ exports.getAllIStockSignals=(req,res)=>{
 }
 exports.getIStockSignalById =(req,res)=>{
     const iStockSignalId = req.params.iStockSignalId
-    iStockSignalModel.findOne({_id:iStockSignalId}).populate("companyId").exec(function(err,result){
+    iStockSignalModel.findOne({_id:iStockSignalId , isDeleted:false}).populate("companyId").exec(function(err,result){
         try{
             if(result){
                 res.json({
@@ -113,7 +113,7 @@ exports.getIStockSignalById =(req,res)=>{
 
 exports.getStockSignalByStatus =(req,res)=>{
     const status = req.query.status
-    iStockSignalModel.find({status:status}).populate("companyId").exec( function(err,result){
+    iStockSignalModel.find({status:status , isDeleted:false}).populate("companyId").exec( function(err,result){
         try{
             if(result){
                 res.json({
@@ -139,7 +139,7 @@ exports.getStockSignalByStatus =(req,res)=>{
 
 exports.getIStockSignalByType =(req,res)=>{
     const type = req.query.type
-    iStockSignalModel.find({type:type}).populate("companyId").exec( function(err,result){
+    iStockSignalModel.find({type:type , isDeleted:false}).populate("companyId").exec( function(err,result){
         try{
             if(result){
                 res.json({
@@ -333,7 +333,7 @@ exports.changeStatus = (req,res)=>{
 
 exports.getAchievedTargetStockSignal = async (req,res)=>{
     
-    const result= await iStockSignalModel.find( {$expr: {$eq: ["$actualGain", "$maxGain"]}})  
+    const result= await iStockSignalModel.find( {$expr: {$eq: ["$actualGain", "$maxGain"]} , isDeleted:false})  
 
     try{
         if(result.length>0){
@@ -361,6 +361,54 @@ exports.getAchievedTargetStockSignal = async (req,res)=>{
     }
 
 
+}
+
+exports.deleteTemporaryAndRestored= (req,res)=>{ 
+    var isDeleted =req.query.isDeleted;
+    const iStockSignalId=req.body.iStockSignalId;
+    isDeleted= JSON.parse(isDeleted);
+    
+    var message;
+    if(isDeleted == false){
+        message= "iStockSignal restored"
+    }
+    else if(isDeleted == true){
+        message = "iStock Signal deleted temporarily"
+    }
+
+    console.log(message)
+    iStockSignalModel.findOneAndUpdate({_id: iStockSignalId},
+        {
+            isDeleted:isDeleted,
+        },
+        {
+            new: true,
+        },
+        function(err,result){
+            try{
+                if (result){
+                    res.json({
+                        message:message,
+                        updatedResult: result,
+                        statusCode:200
+                    })
+                }
+                else{
+                    res.json({
+                        message:"No any iStock signal deleted or restored  , i stock signal with this Id may not exist",
+                        statusCode:404
+                    })
+                }
+             }
+             catch(err){
+                res.json({
+                    message:"Failed to delete or restore i stock signal ",
+                    error:err.message,
+                    statusCode:500
+                })
+             }
+        }
+        )
 }
 
 

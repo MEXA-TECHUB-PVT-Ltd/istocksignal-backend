@@ -58,7 +58,7 @@ exports.createOptionSignal = (req,res)=>{
 
 exports.getAllOptionSignals=(req,res)=>{
     
-    optionSignalModel.find({}).populate("companyId").exec(function(err,result){
+    optionSignalModel.find({isDeleted:false}).populate("companyId").exec(function(err,result){
         try{
             console.log(result)
             if(result){
@@ -84,7 +84,7 @@ exports.getAllOptionSignals=(req,res)=>{
 }
 exports.getOptionSignalById =(req,res)=>{
     const optionSignalId = req.params.optionSignalId
-    optionSignalModel.findOne({_id:optionSignalId}).populate("companyId").exec(function(err,result){
+    optionSignalModel.findOne({_id:optionSignalId , isDeleted:false}).populate("companyId").exec(function(err,result){
         try{
             if(result){
                 res.json({
@@ -110,7 +110,7 @@ exports.getOptionSignalById =(req,res)=>{
 
 exports.getOptionSignalByStatus =(req,res)=>{
     const status = req.query.status
-    optionSignalModel.find({status:status}).populate("companyId").exec( function(err,result){
+    optionSignalModel.find({status:status , isDeleted:false}).populate("companyId").exec( function(err,result){
         try{
             if(result){
                 res.json({
@@ -300,7 +300,7 @@ exports.changeStatus = (req,res)=>{
 
 exports.getAchievedTargetSignal = async (req,res)=>{
     
-    const result= await optionSignalModel.find( {$expr: {$eq: ["$actualGain", "$maxGain"]}})  
+    const result= await optionSignalModel.find( {$expr: {$eq: ["$actualGain", "$maxGain"]} , isDeleted:false})  
 
     try{
         if(result.length>0){
@@ -330,7 +330,53 @@ exports.getAchievedTargetSignal = async (req,res)=>{
 
 }
 
+exports.deleteTemporaryAndRestored= (req,res)=>{ 
+    var isDeleted =req.query.isDeleted;
+    const optionSignalId=req.body.optionSignalId;
+    isDeleted= JSON.parse(isDeleted);
+    
+    var message;
+    if(isDeleted == false){
+        message= "optionSignal restored"
+    }
+    else if(isDeleted == true){
+        message = " optionSignal deleted temporarily"
+    }
 
+    console.log(message)
+    optionSignalModel.findOneAndUpdate({_id: optionSignalId},
+        {
+            isDeleted:isDeleted,
+        },
+        {
+            new: true,
+        },
+        function(err,result){
+            try{
+                if (result){
+                    res.json({
+                        message:message,
+                        updatedResult: result,
+                        statusCode:200
+                    })
+                }
+                else{
+                    res.json({
+                        message:"No any option signal deleted or restored  ,  optionSignal with this Id may not exist",
+                        statusCode:404
+                    })
+                }
+             }
+             catch(err){
+                res.json({
+                    message:"Failed to delete or restore optionSignal ",
+                    error:err.message,
+                    statusCode:500
+                })
+             }
+        }
+        )
+}
 
 
 function  calculateMax_gain(sellTarget,buyTarget){

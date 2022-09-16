@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 
 exports.getAllUsers = (req, res) => {
-  userModel.find({}, function (err, foundResult) {
+  userModel.find({isDeleted:false}, function (err, foundResult) {
     try {
       res.json({
         message: "Users fetched",
@@ -22,7 +22,7 @@ exports.getAllUsers = (req, res) => {
 
 exports.getSpecificUser = (req, res) => {
   const userId = req.params.userId;
-  userModel.find({ _id: userId }, function (err, foundResult) {
+  userModel.find({ _id: userId , isDeleted:false }, function (err, foundResult) {
     try {
       res.json({
         result:foundResult,
@@ -167,3 +167,51 @@ exports.updateUserProfile = (req, res) => {
     res.json("userId be null or undefined");
   }
 };
+
+exports.deleteTemporaryAndRestored= (req,res)=>{ 
+  var isDeleted =req.query.isDeleted;
+  const userId=req.body.userId;
+  isDeleted= JSON.parse(isDeleted);
+  
+  var message;
+  if(isDeleted == false){
+      message= "user restored"
+  }
+  else if(isDeleted == true){
+      message = "user deleted temporarily"
+  }
+
+  console.log(message)
+  userModel.findOneAndUpdate({_id: userId},
+      {
+          isDeleted:isDeleted,
+      },
+      {
+          new: true,
+      },
+      function(err,result){
+          try{
+              if (result){
+                  res.json({
+                      message:message,
+                      updatedResult: result,
+                      statusCode:200
+                  })
+              }
+              else{
+                  res.json({
+                      message:"No any user deleted or restored  , user with this Id may not exist",
+                      statusCode:404
+                  })
+              }
+           }
+           catch(err){
+              res.json({
+                  message:"Failed to delete or restore user ",
+                  error:err.message,
+                  statusCode:500
+              })
+           }
+      }
+      )
+}

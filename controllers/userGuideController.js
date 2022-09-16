@@ -5,7 +5,7 @@ const mongoose  = require("mongoose");
 
 
 exports.getAllGuides = (req,res) =>{
-    guideModel.find({},(function(err,result){
+    guideModel.find({isDeleted:false},(function(err,result){
         try{
             res.json({
                 message: "All guides fetched",
@@ -26,7 +26,7 @@ exports.getAllGuides = (req,res) =>{
 
     exports.getGuideById = (req,res) =>{
         const guideId= req.params.guideId
-        guideModel.find({_id:guideId},(function(err,result){
+        guideModel.find({_id:guideId, isDeleted:false},(function(err,result){
             try{
                 res.json({
                     message: "guides with This Id",
@@ -92,6 +92,7 @@ exports.getAllGuides = (req,res) =>{
     }
 
 
+
 exports.updateGuide= (req,res)=>{
 
     const guideId = req.body.guideId;
@@ -118,4 +119,52 @@ exports.updateGuide= (req,res)=>{
         else{
         res.json("guideId may be null or undefined")
        }
+}
+
+exports.deleteTemporaryAndRestored= (req,res)=>{ 
+    var isDeleted =req.query.isDeleted;
+    const guideId=req.body.guideId;
+    isDeleted= JSON.parse(isDeleted);
+    
+    var message;
+    if(isDeleted == false){
+        message= "guide restored"
+    }
+    else if(isDeleted == true){
+        message = " guide deleted temporarily"
+    }
+
+    console.log(message)
+    guideModel.findOneAndUpdate({_id: guideId},
+        {
+            isDeleted:isDeleted,
+        },
+        {
+            new: true,
+        },
+        function(err,result){
+            try{
+                if (result){
+                    res.json({
+                        message:message,
+                        updatedResult: result,
+                        statusCode:200
+                    })
+                }
+                else{
+                    res.json({
+                        message:"No any guide deleted or restored  , guide with this Id may not exist",
+                        statusCode:404
+                    })
+                }
+             }
+             catch(err){
+                res.json({
+                    message:"Failed to delete or restore guide",
+                    error:err.message,
+                    statusCode:500
+                })
+             }
+        }
+        )
 }

@@ -12,6 +12,7 @@ router.put("/updateCryptoSignal" ,controller.updateCryptoSignal)
 router.get("/getTargetAchievedCryptoSignals" ,controller.getAchievedTargetCryptoSignal)
 router.put("/changeCryptoSignalStatus" ,controller.changeStatus)
 router.get("/getCryptoSignalByStatus" ,controller.getCryptoSignalByStatus)
+router.put("/deleteOrRestoredCryptoSignal" ,controller.deleteTemporaryAndRestored)
 
 module.exports = router
 

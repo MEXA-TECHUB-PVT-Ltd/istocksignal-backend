@@ -7,6 +7,10 @@ topicName:String,
 detail:{
     type:String,
 },
+isDeleted:{
+    type:Boolean,
+    default:false,
+}
 
 })
 module.exports = mongoose.model("userGuide", guideSchema);

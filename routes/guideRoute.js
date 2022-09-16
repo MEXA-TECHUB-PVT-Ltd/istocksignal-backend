@@ -12,5 +12,6 @@ router.get("/guideById/:guideId" , controller.getGuideById)
 
 // router.delete("/deleteHospitalType/:hospitalTypeId", controller.deleteHospitalType);
  router.put ("/updateGuide" , controller.updateGuide);
+ router.put ("/deleteOrRestoreGuide" , controller.deleteTemporaryAndRestored);
 
 module.exports = router;

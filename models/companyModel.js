@@ -9,7 +9,12 @@ _id:mongoose.Schema.Types.ObjectId,
     type: String,
   },
   
-  description:String
+  description:String,
+  isDeleted:{
+    type:Boolean,
+    default:false,
+  }
+  
 } 
 );
 module.exports = mongoose.model("company", companySchema);

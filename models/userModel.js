@@ -41,6 +41,10 @@ _id:mongoose.Schema.Types.ObjectId,
     type:String,
     required:false,
  },
+ isDeleted:{
+  type:Boolean,
+  default:false
+ }
 
 } 
 

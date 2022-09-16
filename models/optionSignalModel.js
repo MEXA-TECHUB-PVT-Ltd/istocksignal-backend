@@ -37,6 +37,10 @@ _id:mongoose.Schema.Types.ObjectId,
     type:String,
     enum:["open" , "closed"],
     default:"open"
+  },
+  isDeleted:{
+    type:Boolean,
+    default:false
   }
 } 
 );

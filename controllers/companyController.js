@@ -41,8 +41,7 @@ exports.createCompany = (req,res)=>{
 }
 
 exports.getAllCompanies = (req,res)=>{
-    
-    companyModel.find({} , function(err,result){
+    companyModel.find({isDeleted:false} , function(err,result){
         try{
             if(result){
                 res.json({
@@ -120,6 +119,54 @@ exports.deleteCompany= (req,res)=>{
     })
 }
 
+exports.deleteTemporaryAndRestored= (req,res)=>{ 
+    var isDeleted =req.query.isDeleted;
+    const companyId=req.body.companyId;
+    isDeleted= JSON.parse(isDeleted);
+    
+    var message;
+    if(isDeleted == false){
+        message= "company restored"
+    }
+    else if(isDeleted == true){
+        message = "company deleted temporarily"
+    }
+
+    console.log(message)
+    companyModel.findOneAndUpdate({_id: companyId},
+        {
+            isDeleted:isDeleted,
+        },
+        {
+            new: true,
+        },
+        function(err,result){
+            try{
+                if (result){
+                    res.json({
+                        message:message,
+                        updatedResult: result,
+                        statusCode:200
+                    })
+                }
+                else{
+                    res.json({
+                        message:"No any company deleted or restored  , company with this Id may not exist",
+                        statusCode:404
+                    })
+                }
+             }
+             catch(err){
+                res.json({
+                    message:"Failed to delete or restore company ",
+                    error:err.message,
+                    statusCode:500
+                })
+             }
+        }
+        )
+}
+
 exports.updateCompany = (req,res)=>{
 
     const companyId = req.body.companyId
@@ -163,3 +210,5 @@ exports.updateCompany = (req,res)=>{
     
 
 }
+
+ 

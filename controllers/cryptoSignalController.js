@@ -57,38 +57,10 @@ exports.createCryptoSignal = (req,res)=>{
     })
 }
 
-exports.getAllIStockSignals=(req,res)=>{
-    
-    iStockSignalModel.find({}).populate("companyId").exec(function(err,result){
-        try{
-            console.log(result)
-            if(result){
-                res.json({
-                    message:"successfully fetched",
-                    result:result,
-                    statusCode:200
-                })
-            }else{
-                res.json({
-                    message:"failed to fetch",
-                    statusCode:404
-                })
-            }
-        }
-        catch(err){
-            res.json({
-                message:"Error occurred in fetching results",
-                statusCode:500
-            })
-        }
-    } )
-    
-    
-}
 
 exports.getAllCryptoSignals=(req,res)=>{
     
-    cryptoSignalModel.find({}).populate("companyId").exec(function(err,result){
+cryptoSignalModel.find({isDeleted:false}).populate("companyId").exec(function(err,result){
         try{
             console.log(result)
             if(result){
@@ -114,7 +86,7 @@ exports.getAllCryptoSignals=(req,res)=>{
 }
 exports.getCryptoSignalById =(req,res)=>{
     const cryptoSignalId = req.params.cryptoSignalId
-    cryptoSignalModel.findOne({_id:cryptoSignalId}).populate("companyId").exec(function(err,result){
+    cryptoSignalModel.findOne({_id:cryptoSignalId , isDeleted:false}).populate("companyId").exec(function(err,result){
         try{
             if(result){
                 res.json({
@@ -140,7 +112,7 @@ exports.getCryptoSignalById =(req,res)=>{
 
 exports.getCryptoSignalByType =(req,res)=>{
     const type = req.query.type
-    cryptoSignalModel.find({type:type}).populate("companyId").exec( function(err,result){
+    cryptoSignalModel.find({type:type , isDeleted:false}).populate("companyId").exec( function(err,result){
         try{
             if(result){
                 res.json({
@@ -342,7 +314,7 @@ exports.changeStatus = (req,res)=>{
 
 exports.getAchievedTargetCryptoSignal = async (req,res)=>{
     
-    const result= await cryptoSignalModel.find( {$expr: {$eq: ["$actualGain", "$maxGain"]}})  
+    const result= await cryptoSignalModel.find( {$expr: {$eq: ["$actualGain", "$maxGain"]}, isDeleted:false})  
 
     try{
         if(result.length>0){
@@ -400,6 +372,54 @@ exports.getCryptoSignalByStatus =(req,res)=>{
     })
 }
 
+exports.deleteTemporaryAndRestored= (req,res)=>{ 
+    var isDeleted =req.query.isDeleted;
+    const cryptoSignalId=req.body.cryptoSignalId;
+    isDeleted= JSON.parse(isDeleted);
+    
+    var message;
+    if(isDeleted == false){
+        message= "crypto signal restored"
+    }
+    else if(isDeleted == true){
+        message = "crypto Signal deleted temporarily"
+    }
+
+
+    console.log(message)
+    cryptoSignalModel.findOneAndUpdate({_id: cryptoSignalId},
+        {
+            isDeleted:isDeleted,
+        },
+        {
+            new: true,
+        },
+        function(err,result){
+            try{
+                if (result){
+                    res.json({
+                        message:message,
+                        updatedResult: result,
+                        statusCode:200
+                    })
+                }
+                else{
+                    res.json({
+                        message:"No any cryptoSignal deleted or restored  , company with this Id may not exist",
+                        statusCode:404
+                    })
+                }
+             }
+             catch(err){
+                res.json({
+                    message:"Failed to delete or restore cryptoSignal ",
+                    error:err.message,
+                    statusCode:500
+                })
+             }
+        }
+        )
+}
 
 function  calculateMax_gain(sellTarget,buyTarget){
     console.log(sellTarget)

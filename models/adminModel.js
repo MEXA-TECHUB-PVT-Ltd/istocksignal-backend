@@ -15,6 +15,10 @@ _id:mongoose.Schema.Types.ObjectId,
     max: 2048,
     min: 6,
   },
+  isDeleted:{
+    type:Boolean,
+    default: false
+  }
 } 
 );
 module.exports = mongoose.model("admin", adminSchema);

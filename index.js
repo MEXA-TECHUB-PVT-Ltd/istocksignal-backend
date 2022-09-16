@@ -41,6 +41,8 @@ app.use("/api/subscription" , require("./routes/subscriptionRoute"))
 app.use("/api/guide" , require("./routes/guideRoute"))
 
 
+app.use("/api/trash" , require("./routes/trashRoute"))
+
 app.get("/api/user/logout",(req,res)=>
 {
   res.json("Delete jwt token you stored in your cookie/session/async etc")

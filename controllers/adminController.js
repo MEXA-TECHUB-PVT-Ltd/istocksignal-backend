@@ -2,7 +2,7 @@ const adminModel= require("../models/adminModel");
 const bcrypt = require("bcryptjs");
 
 exports.getAllAdmins= (req,res)=>{
-    adminModel.find({},function(err, foundResult){
+    adminModel.find({isDeleted:false},function(err, foundResult){
         try{
             res.json({
                 foundResult:foundResult,
@@ -16,7 +16,7 @@ exports.getAllAdmins= (req,res)=>{
 
 exports.getSpecificAdmin= (req,res)=>{
     const adminId = req.params.adminId;
-    adminModel.find({_id:adminId},function(err, foundResult){
+    adminModel.find({_id:adminId , isDeleted:false},function(err, foundResult){
         try{
             res.json({
                 foundResult:foundResult,
@@ -90,6 +90,53 @@ exports.updatePassword=async (req,res)=>{
      
 }
 
+exports.deleteTemporaryAndRestored= (req,res)=>{ 
+    var isDeleted =req.query.isDeleted;
+    const adminId=req.body.adminId;
+    isDeleted= JSON.parse(isDeleted);
+    
+    var message;
+    if(isDeleted == false){
+        message= "user restored"
+    }
+    else if(isDeleted == true){
+        message = "user deleted temporarily"
+    }
+  
+    console.log(message)
+    adminModel.findOneAndUpdate({_id: adminId},
+        {
+            isDeleted:isDeleted,
+        },
+        {
+            new: true,
+        },
+        function(err,result){
+            try{
+                if (result){
+                    res.json({
+                        message:message,
+                        updatedResult: result,
+                        statusCode:200
+                    })
+                }
+                else{
+                    res.json({
+                        message:"No any admin deleted or restored , admin with this Id may not exist",
+                        statusCode:404
+                    })
+                }
+             }
+             catch(err){
+                res.json({
+                    message:"Failed to delete or restore admin ",
+                    error:err.message,
+                    statusCode:500
+                })
+             }
+        }
+        )
+  }
 // exports.updateProfile= (req,res)=>{
 //     const userId = req.body.userId;
 //     const name = req.body.name;

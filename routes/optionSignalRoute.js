@@ -11,6 +11,7 @@ router.delete("/deleteOptionSignal/:optionSignalId",controller.deleteOptionSigna
 router.put("/updateOptionSignal" ,controller.updateOptionSignal)
 router.get("/getTargetAchievedOptionSignals" ,controller.getAchievedTargetSignal)
 router.put("/changeSignalStatus" ,controller.changeStatus)
+router.put("/deleteOrRestoreOptionSingle" ,controller.deleteTemporaryAndRestored)
 
 module.exports = router
 

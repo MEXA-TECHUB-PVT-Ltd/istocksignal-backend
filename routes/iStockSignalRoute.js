@@ -12,6 +12,7 @@ router.put("/updateIStockSignal" ,controller.updateIStockSignal)
 router.get("/getTargetAchievedStockSignals" ,controller.getAchievedTargetStockSignal)
 router.put("/changeSignalStatus" ,controller.changeStatus)
 router.get("/getIStockSignalByStatus" ,controller.getStockSignalByStatus)
+router.put("/deleteOrRestoreIStockSignal" ,controller.deleteTemporaryAndRestored)
 
 module.exports = router
 

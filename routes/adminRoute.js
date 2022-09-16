@@ -12,6 +12,7 @@ router.get("/allAdmins" ,controller.getAllAdmins)
 router.get("/specificAdmin/:adminId" , controller.getSpecificAdmin)
 router.delete("/deleteAdmin/:adminId" , controller.deleteAdmin);
 router.put("/updateAdminPassword", controller.updatePassword)
+router.put("/deleteOrRestoreAdmin", controller.deleteTemporaryAndRestored)
 
  
 
@@ -40,9 +41,7 @@ router.post("/register",  async (req, res) => {
       const savedAdmin= await admin.save();
       
       res.json({
-        _id:savedAdmin._id,
-        email:savedAdmin.email,
-        password:savedAdmin.password,
+        _result:savedAdmin,
         statusCode:201
 
 
@@ -57,7 +56,7 @@ router.post("/login",async (req, res) => {
     if (error) return res.status(400).send(error.details[0].message);
     
   
-    const admin = await adminModel.findOne({ email: req.body.email });
+    const admin = await adminModel.findOne({ email: req.body.email , isDeleted:false});
    
   
     if (!admin) return res.status(400).send("Email or password is wrong");
