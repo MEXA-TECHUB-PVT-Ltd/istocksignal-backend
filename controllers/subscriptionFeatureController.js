@@ -1,11 +1,11 @@
 
-const subscriptionModel= require("../models/subscriptionModel")
+const subscriptionFeaturesModel= require("../models/subscription_featureModel")
 const mongoose  = require("mongoose");
 const userModel = require("../models/userModel");
 
 
-exports.getAllSubscriptions = (req,res) =>{
-    subscriptionModel.find({},(function(err,result){
+exports.getAllSubscriptionFeatures = (req,res) =>{
+    subscriptionFeaturesModel.find({}).populate("subscription_id").exec((err,result) =>{
         try{
             res.json({
                 message: "All subscriptions fetched",
@@ -22,11 +22,11 @@ exports.getAllSubscriptions = (req,res) =>{
             })
         }
     })
-    )}
+}
 
-    exports.getSubscriptionById = (req,res) =>{
-        const subscription_id= req.params.subscription_id
-        subscriptionModel.find({_id:subscription_id},(function(err,result){
+    exports.getSubscriptionFeaturesById = (req,res) =>{
+        const subscriptionFeatures_id= req.params.subscriptionFeatures_id
+        subscriptionFeaturesModel.find({_id:subscriptionFeatures_id}).populate("subscription_id").exec(function(err, result){
             try{
                 res.json({
                     message: "subscriptions with This Id",
@@ -43,12 +43,12 @@ exports.getAllSubscriptions = (req,res) =>{
                 })
             }
         })
-        )}
+        }
 
-    exports.deleteSubscription = (req,res)=>{
-        const subscription_id= req.params.subscription_id
+    exports.deleteSubscriptionFeature = (req,res)=>{
+        const subscriptionFeatures_id= req.params.subscriptionFeatures_id
 
-        subscriptionModel.deleteOne({_id:subscription_id}, function(err,result){
+        subscriptionFeaturesModel.deleteOne({_id:subscriptionFeatures_id}, function(err,result){
             if(err){
                 res.json(err)
             }else{
@@ -61,14 +61,16 @@ exports.getAllSubscriptions = (req,res) =>{
         })
     }
 
-    exports.createSubscription = async (req,res)=>{
+    exports.createSubscriptionFeature = async (req,res)=>{
      
       
         const name = req.body.name;
+        const subscription_id= req.body.subscription_id;
         
-        const newSubscription = new subscriptionModel({
+        const newSubscription = new subscriptionFeaturesModel({
             _id: mongoose.Types.ObjectId(),
             name:name,
+            subscription_id: subscription_id,
           });
 
           newSubscription.save(function (err, result) {
@@ -91,16 +93,18 @@ exports.getAllSubscriptions = (req,res) =>{
     }
 
 
-exports.updateSubscription= (req,res)=>{
+exports.updateSubscriptionFeature= (req,res)=>{
 
-    const subscription_id = req.body.subscription_id;
+    const subscriptionFeatures_id = req.body.subscriptionFeatures_id;
     const name= req.body.name;
+    const subscription_id = req.body.subscription_id;
 
-    if(subscription_id !==null && typeof subscription_id !=="undefined"){
+    if(subscriptionFeatures_id !==null && typeof subscriptionFeatures_id !=="undefined"){
         
-        subscriptionModel.findOneAndUpdate ({_id: subscription_id}, 
+        subscriptionFeaturesModel.findOneAndUpdate ({_id: subscriptionFeatures_id}, 
             {
                 name: name,
+                subscription_id:subscription_id
             },
             {
                 new: true,
@@ -113,6 +117,29 @@ exports.updateSubscription= (req,res)=>{
             })
     }
         else{
-        res.json("subscriptionId may be null or undefined")
+        res.json("subscriptionFeature_id may be null or undefined")
        }
+}
+
+exports.getSubscriptionFeaturesBySubscription_id = (req,res)=>{
+
+const subscription_id = req.params.subscription_id
+
+subscriptionFeaturesModel.find({subscription_id:subscription_id}).populate("subscription_id").exec(function(err, result){
+    try{
+        res.json({
+            message: "subscriptions features for This Id",
+            data: result,
+            statusCode:200
+        })
+    }
+    catch(err){
+        res.json({
+            message: "Error in fetching " ,
+            Error: err.message,
+            error: err,
+            statusCode:404
+        })
+    }
+})
 }

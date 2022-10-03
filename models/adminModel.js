@@ -18,7 +18,8 @@ _id:mongoose.Schema.Types.ObjectId,
   isDeleted:{
     type:Boolean,
     default: false
-  }
+  },
+  username: String
 } 
 );
 module.exports = mongoose.model("admin", adminSchema);

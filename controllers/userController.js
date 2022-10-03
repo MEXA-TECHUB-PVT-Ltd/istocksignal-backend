@@ -21,8 +21,8 @@ exports.getAllUsers = (req, res) => {
 };
 
 exports.getSpecificUser = (req, res) => {
-  const userId = req.params.userId;
-  userModel.find({ _id: userId , isDeleted:false }, function (err, foundResult) {
+  const user_id = req.params.user_id;
+  userModel.find({ _id: user_id , isDeleted:false }, function (err, foundResult) {
     try {
       res.json({
         result:foundResult,
@@ -39,8 +39,8 @@ exports.getSpecificUser = (req, res) => {
 };
 
 exports.deleteUser = (req, res) => {
-  const userId = req.params.userId;
-  userModel.deleteOne({ _id: userId }, function (err, foundResult) {
+  const user_id = req.params.user_id;
+  userModel.deleteOne({ _id: user_id }, function (err, foundResult) {
     try {
       res.json({
         result:foundResult,
@@ -59,15 +59,15 @@ exports.deleteUser = (req, res) => {
 exports.updatePassword = async (req, res) => {
   const email = req.body.email;
   const newPassword = req.body.newPassword;
-  const userId = req.body.userId;
+  const user_id = req.body.user_id;
 
-  if (email && newPassword && userId !== null && typeof email && typeof newPassword && typeof userId !== "undefined" ) {
+  if (email && newPassword && user_id !== null && typeof email && typeof newPassword && typeof user_id !== "undefined" ) {
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(newPassword, salt);
     userModel.findOneAndUpdate(
       {
         email: email,
-        _id: userId,
+        _id: user_id,
       },
       {
         password: hashPassword,
@@ -96,18 +96,18 @@ exports.updatePassword = async (req, res) => {
   }
 };
 
-exports.blockStatusChange = (req, res) => {
+exports.change_account_status = (req, res) => {
   const status = req.body.status;
-  const userId = req.body.userId;
+  const user_id = req.body.user_id;
   userModel.findOneAndUpdate(
-    { _id: userId },
-    { blockStatus: status },
+    { _id: user_id },
+    { account_status: status },
     { new: true },
     function (err, result) {
       if (result) {
         if (!err) {
           res.json({
-            message: "Block status changed to " + status,
+            message: "account status changed to " + status,
             updatedResult: result,
           });
         } else {
@@ -124,19 +124,18 @@ exports.blockStatusChange = (req, res) => {
 };
 
 exports.updateUserProfile = (req, res) => {
-  const userId = req.body.userId;
+  const user_id = req.body.user_id;
   
 
-  if (userId !== null && typeof userId !== "undefined") {
+  if (user_id !== null && typeof user_id !== "undefined") {
     userModel.findByIdAndUpdate(
-      userId,
+      user_id,
       {
-        gender: req.body.gender,
-        dateOfBirth: req.body.dateOfBirth,
         fcmToken: req.body.fcmToken,
-        userName: req.body.userName,
+        username: req.body.username,
         email: req.body.email,
         signupType: req.body.signupType,
+        image: req.body.image,
       
       },
       {
@@ -170,7 +169,7 @@ exports.updateUserProfile = (req, res) => {
 
 exports.deleteTemporaryAndRestored= (req,res)=>{ 
   var isDeleted =req.query.isDeleted;
-  const userId=req.body.userId;
+  const user_id=req.body.user_id;
   isDeleted= JSON.parse(isDeleted);
   
   var message;
@@ -182,7 +181,7 @@ exports.deleteTemporaryAndRestored= (req,res)=>{
   }
 
   console.log(message)
-  userModel.findOneAndUpdate({_id: userId},
+  userModel.findOneAndUpdate({_id: user_id},
       {
           isDeleted:isDeleted,
       },

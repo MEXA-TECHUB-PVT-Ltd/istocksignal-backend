@@ -97,10 +97,10 @@ exports.deleteTemporaryAndRestored= (req,res)=>{
     
     var message;
     if(isDeleted == false){
-        message= "user restored"
+        message= "admin restored"
     }
     else if(isDeleted == true){
-        message = "user deleted temporarily"
+        message = "admin deleted temporarily"
     }
   
     console.log(message)
@@ -137,56 +137,46 @@ exports.deleteTemporaryAndRestored= (req,res)=>{
         }
         )
   }
-// exports.updateProfile= (req,res)=>{
-//     const userId = req.body.userId;
-//     const name = req.body.name;
-//     const age = req.body.age;
-//     const email=req.body.email;
+  
 
-//     if(userId !== null && typeof userId !== "undefined"){
-//         if(req.file){
-//             doctorModel.findOneAndUpdate({_id:userId} ,
-//             {
-//                 name:name,
-//                 age:age,
-//                 profileImage:{
-//                     data:req.file.path,
-//                     contentType:"image/jpeg",
-//                 },
-//                 email:email
-//             },
-//             {
-//                 new:true
-//             },function(err,foundResult){
-//                 res.json({
-//                     message:"updated",
-//                     updatedData:foundResult
-//                 })
-//             })
-//         }
-//         else{
-//             doctorModel.findOneAndUpdate({_Id:userId} ,
-//                 {
-//                     name:name,
-//                     age:age,
-//                     email:email,
-//                 },
-//                 {
-//                     new:true
-//                 },function(err,foundResult){
-//                     res.json({
-//                         message:"updated",
-//                         updatedData:foundResult
-//                     })
-//                 })
-            
-//         }
 
-//     }else{
-//         res.json({
-//             message:"userId is null or undefined"
-//         })
-//     }
-
-// }
-
+  exports.updateAdminProfile = (req, res) => {
+    const adminId = req.body.adminId;
+    
+  
+    if (adminId !== null && typeof adminId !== "undefined") {
+      adminModel.findByIdAndUpdate(
+        adminId,
+        {
+          username: req.body.username,
+          email: req.body.email,
+        
+        },
+        {
+          new: true,
+        },
+        function (err, result) {
+          if (!err) {
+            if (result !== null && typeof result !== "undefined") {
+              res.json({
+                message: "Updated successfully",
+                updatedResult: result,
+              });
+            } else {
+              res.json({
+                message:
+                  "couldn't update , Record with this admin id  may be not found",
+              });
+            }
+          } else {
+            res.json({
+              message: "Error updating",
+              Error: err.message,
+            });
+          }
+        }
+      );
+    } else {
+      res.json("admin id be null or undefined");
+    }
+  };

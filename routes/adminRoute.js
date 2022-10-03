@@ -13,6 +13,7 @@ router.get("/specificAdmin/:adminId" , controller.getSpecificAdmin)
 router.delete("/deleteAdmin/:adminId" , controller.deleteAdmin);
 router.put("/updateAdminPassword", controller.updatePassword)
 router.put("/deleteOrRestoreAdmin", controller.deleteTemporaryAndRestored)
+router.put("/updateAdminProfile", controller.updateAdminProfile)
 
  
 
@@ -33,6 +34,7 @@ router.post("/register",  async (req, res) => {
       _id:mongoose.Types.ObjectId(),
       email: req.body.email,
       password: hashPassword,
+      username:req.body.username,
      
      
     });
@@ -72,6 +74,7 @@ router.post("/login",async (req, res) => {
       _id:admin._id,
       email:admin.email,
       password:admin.password,
+      username:admin.username,
       statusCode:200
 
     })
@@ -84,6 +87,7 @@ router.post("/login",async (req, res) => {
 const registerSchema = Joi.object({
     email: Joi.string().min(6).required().email(),
     password: Joi.string().min(6).required(),
+    username:Joi.string(),
   });
   
   const loginSchema = Joi.object({

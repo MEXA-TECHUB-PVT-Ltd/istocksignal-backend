@@ -3,14 +3,14 @@ const mongoose = require("mongoose")
 const companyModel = require("../models/companyModel")
 
 exports.createCompany = (req,res)=>{
-    const companyName = req.body.companyName
-    const companyLogo = req.body.companyLogo
+    const name = req.body.name
+    const logo = req.body.logo
     const description = req.body.description
 
     const company = new companyModel({
         _id:mongoose.Types.ObjectId(),
-        companyName: companyName,
-        companyLogo: companyLogo,
+        name: name,
+        logo: logo,
         description: description,
     })
 
@@ -65,8 +65,8 @@ exports.getAllCompanies = (req,res)=>{
     })
 }
 exports.getCompanyById =(req,res)=>{
-    const companyId = req.params.companyId
-    companyModel.findOne({_id:companyId} , function(err,result){
+    const company_id = req.params.company_id
+    companyModel.findOne({_id:company_id} , function(err,result){
         try{
             if(result){
                 res.json({
@@ -91,9 +91,9 @@ exports.getCompanyById =(req,res)=>{
 }
 
 exports.deleteCompany= (req,res)=>{
-    const companyId= req.params.companyId;
+    const company_id= req.params.company_id;
 
-    companyModel.deleteOne({_id: companyId} , function(err,result){
+    companyModel.deleteOne({_id: company_id} , function(err,result){
         try{
             if(result.deletedCount>0){
                 res.json({
@@ -121,7 +121,7 @@ exports.deleteCompany= (req,res)=>{
 
 exports.deleteTemporaryAndRestored= (req,res)=>{ 
     var isDeleted =req.query.isDeleted;
-    const companyId=req.body.companyId;
+    const company_id=req.body.company_id;
     isDeleted= JSON.parse(isDeleted);
     
     var message;
@@ -133,7 +133,7 @@ exports.deleteTemporaryAndRestored= (req,res)=>{
     }
 
     console.log(message)
-    companyModel.findOneAndUpdate({_id: companyId},
+    companyModel.findOneAndUpdate({_id: company_id},
         {
             isDeleted:isDeleted,
         },
@@ -169,15 +169,15 @@ exports.deleteTemporaryAndRestored= (req,res)=>{
 
 exports.updateCompany = (req,res)=>{
 
-    const companyId = req.body.companyId
-    const companyName = req.body.companyName
-    const companyLogo = req.body.companyLogo
+    const company_id = req.body.company_id
+    const name = req.body.name
+    const logo = req.body.logo
     const description = req.body.description
 
-    companyModel.findOneAndUpdate({_id: companyId},
+    companyModel.findOneAndUpdate({_id: company_id},
         {
-            companyName: companyName,
-            companyLogo: companyLogo,
+            name: name,
+            logo: logo,
             description: description,
         },
         {

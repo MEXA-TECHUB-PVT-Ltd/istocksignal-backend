@@ -12,8 +12,8 @@ module.exports = (req, res, next) => {
         console.log(decodedToken)
         const userId = decodedToken._id;
         console.log(userId + "user id")
-        console.log(req.body.userId)
-        if (req.body.userId && req.body.userId !== userId) 
+        console.log(req.body.user_id)
+        if (req.body.user_id !== userId) 
         {
           res.json({
             message:"invalid user"

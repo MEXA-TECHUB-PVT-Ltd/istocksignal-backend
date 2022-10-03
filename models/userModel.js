@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
 _id:mongoose.Schema.Types.ObjectId,
-  userName: String,
+
+  username: String,
   signupType:{
     type:String,
     enum:['email', 'google',],
@@ -14,26 +15,13 @@ _id:mongoose.Schema.Types.ObjectId,
     max: 255,
   },
 
-  gender:{
-    type: String,
-    enum: ['male', 'female' , 'preferNotToSay'],
-  },
-
-  dateOfBirth:{
-    type:Date
-  },
-
-  profileImage:{
-    type:String,
-  },
- 
   password: {
     type: String,
     required: true,
     max: 2048,
     min: 6,
   },
-  blockStatus:{
+  account_status:{
     type:Boolean,
     default: false,
   },
@@ -44,6 +32,9 @@ _id:mongoose.Schema.Types.ObjectId,
  isDeleted:{
   type:Boolean,
   default:false
+ },
+ image:{
+  type:String,
  }
 
 } 

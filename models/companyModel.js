@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const companySchema = new mongoose.Schema({
 _id:mongoose.Schema.Types.ObjectId,
-  companyName: {
+  name: {
     type: String,
   },
-  companyLogo: {
+  logo: {
     type: String,
   },
   
