@@ -74,20 +74,31 @@ router.post("/login",async (req, res) => {
     expiresIn: "30d",
   });
 
-
-
+  const result = await userModel.aggregate([
+    {
+      $match:{
+        _id:user._id,
+      }
+    },
+    {
+      $lookup:{
+          from:"user_subscriptions",
+          localField:"_id",
+          foreignField:"user_id",
+          as:"subscriptions details"
+      }
+    }
+  ])
 
   
 
+
   res.json({
     message:"Logged in successfully",
-    data:{token: token,
-    _id:user._id,
-    email:user.email,
-    password:user.password,
-    username:user.username,
-    signupType:user.signupType,
-    image:user.image,
+    data:{
+    token: token,
+    result:result
+    
   },
   statusCode:200
   })

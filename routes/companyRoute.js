@@ -5,8 +5,8 @@ const controller= require("../controllers/companyController")
 
 router.post("/createCompany" , controller.createCompany)
 router.get("/getAllCompanies" ,controller.getAllCompanies)
-router.get("/getCompanyById/:companyId",controller.getCompanyById)
-router.delete("/deleteCompany/:companyId",controller.deleteCompany)
+router.get("/getCompanyById/:company_id" , controller.getCompanyById)
+router.delete("/deleteCompany/:company_id",controller.deleteCompany)
 router.put("/updateCompany" ,controller.updateCompany)
 router.put("/deleteAndRestoreCompany" ,controller.deleteTemporaryAndRestored)
 
