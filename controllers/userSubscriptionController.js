@@ -67,7 +67,7 @@ exports.getAllUserSubscription = (req,res) =>{
         const user_id = req.body.user_id;
         let date_subscribed = req.body.date_subscribed;
 
-         let new_date_subscribed= new Date(date_subscribed);
+         let new_date_subscribed= new Date(date_subscribed.toString());
         const subscription_end_date = new_date_subscribed.setDate(new_date_subscribed.getDate() + 14);
 
         

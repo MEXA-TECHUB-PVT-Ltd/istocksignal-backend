@@ -2,6 +2,11 @@
 const mongoose = require("mongoose")
 const signalModel = require("../models/signal")
 const companyModel= require("../models/companyModel")
+const pushNotification = require("../utils/pushNotification")
+const sentNotification = require("../models/sent_notificationModels")
+const sent_notificationModels = require("../models/sent_notificationModels")
+const notificationModel = require("../models/notificationModel")
+
 
 
 
@@ -43,15 +48,37 @@ exports.createSignal = (req,res)=>{
         
     }) 
     
-    newSignal.save((err,result)=>{
+    const obj={}
+    newSignal.save(async (err,result)=>{
         try{
             console.log(result)
             if(result){
-                res.json({
-                    message:"successfully created signal",
-                    statusCode:200,
-                    result:result
-                })
+                obj.message="signal created successfully",
+                obj.createdSignal=result
+                
+                console.log(result.category_id)
+                const getCategory = await signalModel.findOne({category_id:result.category_id}).populate("category_id")
+                console.log(getCategory)
+                const type= getCategory.category_id.name;
+                console.log("this is type:"+type)
+                const data = await checkType(type);
+                console.log(data)
+               const isStored= await storeSentNotification(" "+data.type+ " signal has created" , data.id , Date.now())
+               console.log(isStored)
+               
+               if(isStored==true){
+                pushNotification(" "+data.type+ " signal has created" )
+                obj.message2= "notification has stored"
+               }
+               else{
+                console.log("notification unable to save")
+                obj.Error1="Notification for creating signal is unable to save"
+               }
+
+               res.json({
+                 result:obj
+            })
+
             }
             else{
                 res.json({
@@ -244,6 +271,7 @@ exports.updateSignal =async (req,res)=>{
                 maxGain= calculateMax_gain(sell_target,buy_target)
             }
         
+            const obj={};
             if(signal_id){
                     
             signalModel.findOneAndUpdate({_id: signal_id},
@@ -262,14 +290,33 @@ exports.updateSignal =async (req,res)=>{
                 },
                 {
                     new: true,
-                }, function(err,result){
+                }, async function(err,result){
                      try{
                         if (result){
-                            res.json({
-                                message:"successfully updated",
-                                updatedResult: result,
-                                statusCode:200
-                            })
+                            obj.message="signal updated successfully"
+                
+                            console.log(result.category_id)
+                            const getCategory = await signalModel.findOne({category_id:result.category_id}).populate("category_id")
+                            console.log(getCategory)
+                            const type= getCategory.category_id.name;
+                            console.log(type)
+                            const data = await checkType(type);
+                            console.log(data)
+                           const isStored= await storeSentNotification(" "+data.type+ " signal has updated" , data.id , Date.now())
+                           console.log(isStored)
+                           
+                           if(isStored==true){
+                            pushNotification(" "+data.type+ " signal has updated" )
+                            obj.message2= "notification has stored"
+                           }
+                           else{
+                            console.log("notification unable to save")
+                            obj.Error1="Notification for creating signal is unable to save"
+                           }
+            
+                           res.json({
+                             result:obj
+                        })
                         }
                         else{
                             res.json({
@@ -441,4 +488,103 @@ exports.getSignalByCompanyName = async (req,res)=>{
     )
 
 
+}
+
+async function storeSentNotification (message, notification_id , date_sent ){
+    try{
+        console.log("notification_id is : "+ notification_id)
+        const sentNotification = new sent_notificationModels({
+            _id:mongoose.Types.ObjectId(),
+            message:message,
+            date_sent:date_sent,
+            notification_id:notification_id,
+        })
+    
+         const savedSentNotification = await sentNotification.save();
+         console.log(savedSentNotification)
+         console.log("notification saved")
+         if(savedSentNotification){
+            return true
+         }
+    }
+    catch(err){
+        return false
+    }
+   
+}
+
+ async function checkType (type){
+
+    if (type === "stock"){
+         const result =await notificationModel.findOne({name:"stock"})
+         const data ={
+            type:result.name,
+            id:result._id
+         }
+        return data
+    }
+    else if(type === "option"){
+        const result =await notificationModel.findOne({name:"option"})
+        const data ={
+           type:result.name,
+           id:result._id
+        }
+       return data
+    }
+    else if(type === "crypto"){
+        const result =await notificationModel.findOne({name:"crypto"})
+        const data ={
+           type:result.name,
+           id:result._id
+        }
+       return data
+    }
+}
+
+
+exports.updateClosingNote = (req,res)=>{
+    const signal_id = req.body.signal_id;
+    const closing_notes=req.body.closing_notes;
+
+    const obj = {};
+    signalModel.findOneAndUpdate({_id:signal_id} , {closing_notes:closing_notes} , {new:true} 
+        , 
+        async function(err , result){
+           try{
+            if(result){
+                obj.message="closing_notes updated successfully"
+                
+                console.log(result.category_id)
+                const getCategory = await signalModel.findOne({category_id:result.category_id}).populate("category_id")
+                console.log(getCategory)
+                const type= getCategory.category_id.name;
+                console.log(type)
+                const data = await checkType(type);
+                console.log(data)
+                const isStored= await storeSentNotification(" "+data.type+ " closing_notes has updated" , data.id , Date.now())
+                console.log(isStored)
+               
+                if(isStored==true){
+                pushNotification(" "+data.type+ " closing_notes has updated" )
+                obj.message2= "notification has stored"
+               }
+               else{
+                console.log("notification unable to save")
+                obj.Error1="Notification for closing_notes update is unable to save"
+               }
+
+               res.json({
+                 result:obj,
+                 
+            })
+            }
+           }
+           catch(err){
+            res.json({
+                message:"error occurred while updating closing notes",
+                statusCode:404,
+                Error: err.message,
+            })
+           }
+        })
 }

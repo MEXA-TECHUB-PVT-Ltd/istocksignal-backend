@@ -41,6 +41,8 @@ app.use("/api/category_signal" , require("./routes/category_signal_route"))
 app.use("/api/type_category_signal" , require("./routes/type-category_signal_route"))
 app.use("/api/subscription_feature" , require("./routes/subscriptionFeatureRoute"))
 app.use("/api/userSubscription" , require("./routes/userSubscriptionRoute"))
+app.use("/api/sent_notification" , require("./routes/sentNotificationRoute"))
+
 
 
 app.use("/api/trash" , require("./routes/trashRoute"))

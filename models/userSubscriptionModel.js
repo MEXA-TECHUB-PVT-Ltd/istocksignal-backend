@@ -8,11 +8,10 @@ _id:mongoose.Schema.Types.ObjectId,
     ref:"user"
  },
  date_subscribed:{
-    type:Date,
-    default:Date.now()
+    type:String
  },
  subscription_end_date:{
-    type:Date,
+    type:String,
  },
  subscription_id: {
     type:mongoose.Schema.Types.ObjectId,
