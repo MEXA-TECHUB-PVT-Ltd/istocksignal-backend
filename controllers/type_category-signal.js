@@ -47,6 +47,39 @@ exports.create_type_category_signal = (req,res)=>{
     }
 }
 
+exports.getTypeCategorySignalByCategoryId= (req,res)=>{
+    const category_signal_id = req.params.category_signal_id
+    type_category_signalModel.find({category_signal_id:category_signal_id} , (err,result)=>{
+        try{
+        if(result){
+            res.json({
+                message:"successfully fetched type_category_signals",
+                result:result,
+                statusCode:200,
+                
+            })
+        }
+        else{
+            res.json({
+                message:"could not fetched  type_category_signal",
+                result:result,
+                statusCode:201,
+                
+            })
+        }
+    }
+    catch(error){
+        res.json({
+            message:"Error occurred while fetching type_category_signals",
+            Error: error,
+            errorMessage:error.message,
+            statusCode:500,
+            
+        })
+    }
+})
+}
+
 exports.getAllType_category_signals= (req,res)=>{
     
         type_category_signalModel.find({} , (err,result)=>{
