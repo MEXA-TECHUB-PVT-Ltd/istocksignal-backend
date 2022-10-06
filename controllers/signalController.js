@@ -174,7 +174,15 @@ exports.getSignalByCategoryId_and_typeCatId=async (req,res)=>{
                     ]
                 },
                 
-            }
+            },
+            {
+                $lookup:{
+                    from:"companies",
+                    localField:"company_id",
+                    foreignField:"_id",
+                    as:"company_details"
+                }
+            },
         )
     }
 
