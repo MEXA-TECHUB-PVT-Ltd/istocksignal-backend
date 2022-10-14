@@ -547,6 +547,23 @@ async function storeSentNotification (message, notification_id , date_sent ){
         }
        return data
     }
+    else if(type === "close"){
+        const result =await notificationModel.findOne({name:"close"})
+        const data ={
+           type:result.name,
+           id:result._id
+        }
+       return data
+    }
+    else if(type === "open"){
+        const result =await notificationModel.findOne({name:"open"})
+        const data ={
+           type:result.name,
+           id:result._id
+        }
+       return data
+    }
+    
 }
 
 
