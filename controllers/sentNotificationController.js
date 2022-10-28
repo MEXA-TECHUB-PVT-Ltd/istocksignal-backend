@@ -26,7 +26,7 @@ exports.getAllSentNotifications = (req,res) =>{
 
     exports.getSentNotificationById = (req,res) =>{
         const sent_notification_id= req.params.sent_notification_id
-        sentNotificationModel.find({_id:sent_notification_id}).populate("notification_id").exec(function(err,result){
+        sentNotificationModel.find({_id:sent_notification_id}).populate("notification_id").populate("company_id").exec(function(err,result){
             try{
                 res.json({
                     message: "sent notifications with This Id",
@@ -47,7 +47,7 @@ exports.getAllSentNotifications = (req,res) =>{
     
     exports.getSentNotificationByNotification_id= (req,res) =>{
         const notification_id = req.params.notification_id;
-        sentNotificationModel.find({notification_id:notification_id}).populate("notification_id").exec(function(err,result){
+        sentNotificationModel.find({notification_id:notification_id}).populate("notification_id").populate("company_id").exec(function(err,result){
             try{
                 res.json({
                     message: "sent notifications with This notification_id",
